@@ -3,13 +3,46 @@ package controllers
 import (
 	"github.com/dwincahya/payment-be/database"
 	"github.com/dwincahya/payment-be/models"
+	"github.com/dwincahya/payment-be/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
 func GetAllChannels(c *fiber.Ctx) error {
+	page := c.Query("page")
+	limit := c.Query("limit")
+
 	var channels []models.PaymentChannel
-	database.DB.Order("id ASC").Find(&channels)
-	return c.JSON(channels)
+
+	if page == "" && limit == "" {
+		if err := database.DB.Order("id ASC").Find(&channels).Error; err != nil {
+			return utils.JSONError(c, 500, "Failed to fetch channels")
+		}
+		return c.JSON(channels)
+	}
+
+	paginate := utils.ParsePaginationParams(c)
+
+	var total int64
+	query := database.DB.Model(&models.PaymentChannel{})
+	query.Count(&total)
+
+	err := query.
+		Order("id ASC").
+		Limit(paginate.Limit).
+		Offset(paginate.Skip).
+		Find(&channels).Error
+
+	if err != nil {
+		return utils.JSONError(c, 500, "Failed to fetch channels")
+	}
+
+	return c.JSON(fiber.Map{
+		"data":       channels,
+		"page":       paginate.Page,
+		"limit":      paginate.Limit,
+		"total":      total,
+		"totalPages": (total + int64(paginate.Limit) - 1) / int64(paginate.Limit),
+	})
 }
 
 func GetChannelByID(c *fiber.Ctx) error {

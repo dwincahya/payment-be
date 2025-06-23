@@ -3,13 +3,46 @@ package controllers
 import (
 	"github.com/dwincahya/payment-be/database"
 	"github.com/dwincahya/payment-be/models"
+	"github.com/dwincahya/payment-be/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
 func GetAllMethods(c *fiber.Ctx) error {
+	page := c.Query("page")
+	limit := c.Query("limit")
+
 	var methods []models.PaymentMethod
-	database.DB.Order("id ASC").Find(&methods)
-	return c.JSON(methods)
+
+	if page == "" && limit == "" {
+		if err := database.DB.Order("id ASC").Find(&methods).Error; err != nil {
+			return utils.JSONError(c, 500, "Failed to fetch methods")
+		}
+		return c.JSON(methods)
+	}
+
+	paginate := utils.ParsePaginationParams(c)
+
+	var total int64
+	query := database.DB.Model(&models.PaymentMethod{})
+	query.Count(&total)
+
+	err := query.
+		Order("id ASC").
+		Limit(paginate.Limit).
+		Offset(paginate.Skip).
+		Find(&methods).Error
+
+	if err != nil {
+		return utils.JSONError(c, 500, "Failed to fetch methods")
+	}
+
+	return c.JSON(fiber.Map{
+		"data":       methods,
+		"page":       paginate.Page,
+		"limit":      paginate.Limit,
+		"total":      total,
+		"totalPages": (total + int64(paginate.Limit) - 1) / int64(paginate.Limit),
+	})
 }
 
 func GetMethodByID(c *fiber.Ctx) error {
