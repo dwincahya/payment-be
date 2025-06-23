@@ -6,7 +6,7 @@ import (
 )
 
 func RegisterChannelRoutes(app *fiber.App) {
-	channel := app.Group("/channels")
+	channel := app.Group("/api/channels")
 
 	channel.Get("/", controllers.GetAllChannels)
 	channel.Get("/:id", controllers.GetChannelByID)
