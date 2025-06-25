@@ -5,7 +5,7 @@ import (
 )
 
 type PaymentChannel struct {
-	ID              uint    `gorm:"primaryKey" json:"Id"`
+	ID              uint    `gorm:"primaryKey" json:"id"`
 	PaymentMethodID *uint   `gorm:"index" json:"PaymentMethodID"`
 	Code            string  `gorm:"type:varchar(255);unique;not null" json:"Code"`
 	Name            string  `gorm:"type:varchar(50);unique;not null" json:"Name"`
