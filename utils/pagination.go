@@ -22,9 +22,8 @@ func ParsePaginationParams(c *fiber.Ctx) Pagination {
 	if limit < 1 {
 		limit = 10
 	}
-	return Pagination{
-		Page:  page,
-		Limit: limit,
-		Skip:  (page - 1) * limit,
-	}
+
+	skip := (page - 1) * limit
+
+	return Pagination{Page: page, Limit: limit, Skip: skip}
 }

@@ -14,12 +14,21 @@ func GetAllChannels(c *fiber.Ctx) error {
 	var channels []models.PaymentChannel
 
 	if page == "" && limit == "" {
-		if err := database.DB.Order("id ASC").Find(&channels).Error; err != nil {
+		if err := database.DB.Preload("PaymentMethod").Order("id ASC").Find(&channels).Error; err != nil {
 			return utils.JSONError(c, 500, "Failed to fetch channels")
 		}
+
+		for i := range channels {
+			if channels[i].PaymentMethod != nil {
+				channels[i].PaymentMethodName = channels[i].PaymentMethod.Name
+				channels[i].PaymentMethodValue = channels[i].PaymentMethod.ID
+			}
+		}
+
 		return c.JSON(channels)
 	}
 
+	// pagination
 	paginate := utils.ParsePaginationParams(c)
 
 	var total int64
@@ -27,6 +36,7 @@ func GetAllChannels(c *fiber.Ctx) error {
 	query.Count(&total)
 
 	err := query.
+		Preload("PaymentMethod").
 		Order("id ASC").
 		Limit(paginate.Limit).
 		Offset(paginate.Skip).
@@ -34,6 +44,14 @@ func GetAllChannels(c *fiber.Ctx) error {
 
 	if err != nil {
 		return utils.JSONError(c, 500, "Failed to fetch channels")
+	}
+
+	// isi field tambahan
+	for i := range channels {
+		if channels[i].PaymentMethod != nil {
+			channels[i].PaymentMethodName = channels[i].PaymentMethod.Name
+			channels[i].PaymentMethodValue = channels[i].PaymentMethod.ID
+		}
 	}
 
 	return c.JSON(fiber.Map{
@@ -48,9 +66,15 @@ func GetAllChannels(c *fiber.Ctx) error {
 func GetChannelByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var channel models.PaymentChannel
-	if err := database.DB.First(&channel, id).Error; err != nil {
+	if err := database.DB.Preload("PaymentMethod").First(&channel, id).Error; err != nil {
 		return c.Status(404).JSON(fiber.Map{"error": "Channel not found"})
 	}
+
+	if channel.PaymentMethod != nil {
+		channel.PaymentMethodName = channel.PaymentMethod.Name
+		channel.PaymentMethodValue = channel.PaymentMethod.ID
+	}
+
 	return c.JSON(channel)
 }
 

@@ -16,8 +16,10 @@ type PaymentChannel struct {
 	Mdr             string  `gorm:"type:varchar(255);default:'0'" json:"Mdr"`
 	FixedFee        float64 `gorm:"type:numeric;default:0" json:"FixedFee"`
 
-	CreatedAt *time.Time `json:"CreatedAt"`
-	UpdatedAt *time.Time `json:"UpdatedAt"`
+	CreatedAt     *time.Time     `json:"CreatedAt"`
+	UpdatedAt     *time.Time     `json:"UpdatedAt"`
+	PaymentMethod *PaymentMethod `gorm:"foreignKey:PaymentMethodID;references:ID" json:"PaymentMethod"`
 
-	PaymentMethod *PaymentMethod `gorm:"foreignKey:PaymentMethodID;references:ID" json:"payment_method,omitempty"`
+	PaymentMethodName  string `gorm:"-" json:"paymentMethod"`
+	PaymentMethodValue uint   `gorm:"-" json:"paymentMethodValue"`
 }
