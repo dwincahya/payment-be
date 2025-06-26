@@ -20,8 +20,6 @@ func GetAllChannels(c *fiber.Ctx) error {
 
 		for i := range channels {
 			if channels[i].PaymentMethod != nil {
-				channels[i].PaymentMethodName = channels[i].PaymentMethod.Name
-				channels[i].PaymentMethodValue = channels[i].PaymentMethod.ID
 			}
 		}
 
@@ -49,8 +47,6 @@ func GetAllChannels(c *fiber.Ctx) error {
 	// isi field tambahan
 	for i := range channels {
 		if channels[i].PaymentMethod != nil {
-			channels[i].PaymentMethodName = channels[i].PaymentMethod.Name
-			channels[i].PaymentMethodValue = channels[i].PaymentMethod.ID
 		}
 	}
 
@@ -71,8 +67,6 @@ func GetChannelByID(c *fiber.Ctx) error {
 	}
 
 	if channel.PaymentMethod != nil {
-		channel.PaymentMethodName = channel.PaymentMethod.Name
-		channel.PaymentMethodValue = channel.PaymentMethod.ID
 	}
 
 	return c.JSON(channel)

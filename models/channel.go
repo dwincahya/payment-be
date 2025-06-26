@@ -19,7 +19,4 @@ type PaymentChannel struct {
 	CreatedAt     *time.Time     `json:"CreatedAt"`
 	UpdatedAt     *time.Time     `json:"UpdatedAt"`
 	PaymentMethod *PaymentMethod `gorm:"foreignKey:PaymentMethodID;references:ID" json:"PaymentMethod"`
-
-	PaymentMethodName  string `gorm:"-" json:"paymentMethod"`
-	PaymentMethodValue uint   `gorm:"-" json:"paymentMethodValue"`
 }
