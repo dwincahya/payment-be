@@ -1,16 +1,26 @@
 package test
 
 import (
+	"fmt"
 	"log"
+	"os"
 	"testing"
 
+	"github.com/dwincahya/payment-be/intenal/config"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 func GormConnection() *gorm.DB {
-	dialect := "host=localhost user=postgres password=@Ainosi2025! dbname=postgres port=5432 sslmode=disable"
+	config.LoadEnv("../.env")
+
+	dialect := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_NAME"),
+		os.Getenv("DB_PORT"))
 
 	db, err := gorm.Open(postgres.Open(dialect), &gorm.Config{})
 
