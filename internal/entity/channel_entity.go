@@ -3,7 +3,7 @@ package entity
 import "time"
 
 type PaymentChannel struct {
-	ID              uint    `gorm:"primaryKey" json:"id"`
+	ID              uint    `gorm:"primaryKey;autoIncrement" json:"id"`
 	PaymentMethodID *uint   `gorm:"index" json:"payment_method_id"`
 	Code            string  `gorm:"type:varchar(255);unique;not null" json:"code"`
 	Name            string  `gorm:"type:varchar(50);unique;not null" json:"name"`

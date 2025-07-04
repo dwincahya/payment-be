@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type PaymentChannelResponse struct {
 	ID              uint                   `json:"id"`
 	PaymentMethodID *uint                  `json:"payment_method_id"`
@@ -11,8 +13,8 @@ type PaymentChannelResponse struct {
 	UserAction      string                 `json:"user_action"`
 	Mdr             string                 `json:"mdr"`
 	FixedFee        float64                `json:"fixed_fee"`
-	CreatedAt       string                 `json:"created_at"`
-	UpdatedAt       string                 `json:"updated_at"`
+	CreatedAt       time.Time              `json:"created_at"`
+	UpdatedAt       time.Time              `json:"updated_at"`
 	PaymentMethod   *PaymentMethodResponse `json:"payment_method,omitempty"`
 }
 
@@ -26,15 +28,22 @@ type CreatePaymentChannelRequest struct {
 	UserAction      string  `json:"user_action" validate:"required,max=25"`
 	Mdr             string  `json:"mdr" validate:"required,max=255"`
 	FixedFee        float64 `json:"fixed_fee" validate:"required"`
-	CreatedAt       string  `json:"created_at" validate:"required"`
-	UpdatedAt       string  `json:"updated_at" validate:"required"`
 }
 
 type GetPaymentChannelRequest struct {
-	ID uint `json:"id" validate:"required"`
+	ID              uint  `json:"id" validate:"required"`
+	PaymentMethodID *uint `json:"payment_method_id" params:"payment_method_id"`
+}
+
+type ListPaymentChannelRequest struct {
+	ID              *uint `json:"id,omitempty" query:"id"`
+	PaymentMethodID *uint `json:"payment_method_id,omitempty" query:"payment_method_id"`
+	Page            int   `json:"page" query:"page"`
+	Limit           int   `json:"size" query:"size"`
 }
 
 type UpdatePaymentChannelRequest struct {
+	ID              uint    `json:"id" validate:"required"`
 	PaymentMethodID *uint   `json:"payment_method_id" validate:"required"`
 	Code            string  `json:"code" validate:"required,max=255"`
 	Name            string  `json:"name" validate:"required,max=50"`
@@ -44,7 +53,6 @@ type UpdatePaymentChannelRequest struct {
 	UserAction      string  `json:"user_action" validate:"required,max=25"`
 	Mdr             string  `json:"mdr" validate:"required,max=255"`
 	FixedFee        float64 `json:"fixed_fee" validate:"required"`
-	UpdatedAt       string  `json:"updated_at" validate:"required"`
 }
 
 type DeletePaymentChannelRequest struct {

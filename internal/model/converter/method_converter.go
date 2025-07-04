@@ -1,8 +1,8 @@
 package converter
 
 import (
-	"github.com/dwincahya/payment-be/intenal/entity"
-	models "github.com/dwincahya/payment-be/intenal/model"
+	"github.com/dwincahya/payment-be/internal/entity"
+	models "github.com/dwincahya/payment-be/internal/model"
 )
 
 func PaymentMethodtoResponse(PaymentMethod *entity.PaymentMethod) *models.PaymentMethodResponse {
@@ -13,5 +13,7 @@ func PaymentMethodtoResponse(PaymentMethod *entity.PaymentMethod) *models.Paymen
 		Code:       PaymentMethod.Code,
 		OrderNum:   PaymentMethod.OrderNum,
 		UserAction: PaymentMethod.UserAction,
+		CreatedAt:  PaymentMethod.CreatedAt,
+		UpdatedAt:  PaymentMethod.UpdatedAt,
 	}
 }

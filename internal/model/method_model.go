@@ -1,14 +1,16 @@
 package models
 
+import "time"
+
 type PaymentMethodResponse struct {
-	ID         uint   `json:"id"`
-	Code       string `json:"code"`
-	Name       string `json:"name"`
-	Desc       string `json:"desc"`
-	OrderNum   int    `json:"order_num"`
-	UserAction string `json:"user_action"`
-	CreatedAt  string `json:"created_at"`
-	UpdatedAt  string `json:"updated_at"`
+	ID         uint      `json:"id"`
+	Code       string    `json:"code"`
+	Name       string    `json:"name"`
+	Desc       string    `json:"desc"`
+	OrderNum   int       `json:"order_num"`
+	UserAction string    `json:"user_action"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 type CreatePaymentMethodRequest struct {
@@ -17,8 +19,6 @@ type CreatePaymentMethodRequest struct {
 	Desc       string `json:"desc" validate:"required"`
 	OrderNum   int    `json:"order_num" validate:"required"`
 	UserAction string `json:"user_action" validate:"required,max=25"`
-	CreatedAt  string `json:"created_at" validate:"required"`
-	UpdatedAt  string `json:"updated_at" validate:"required"`
 }
 
 type GetPaymentMethodRequest struct {
@@ -26,12 +26,12 @@ type GetPaymentMethodRequest struct {
 }
 
 type UpdatePaymentMethodRequest struct {
+	ID         uint   `json:"id" validate:"required"`
 	Code       string `json:"code" validate:"required,max=25"`
 	Name       string `json:"name" validate:"required,max=50"`
 	Desc       string `json:"desc" validate:"required"`
 	OrderNum   int    `json:"order_num" validate:"required"`
 	UserAction string `json:"user_action" validate:"required,max=25"`
-	UpdatedAt  string `json:"updated_at" validate:"required"`
 }
 
 type DeletePaymentMethodRequest struct {
