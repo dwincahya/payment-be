@@ -18,9 +18,9 @@ func (c *RouteConfig) Setup() {
 	c.App.Get("/api/channels/:id", c.PaymentChannelController.Get)
 	c.App.Delete("/api/channels/:id", c.PaymentChannelController.Delete)
 
-	c.App.Get("/api/payment-methods", c.PaymentMethodController.List)
-	c.App.Post("/api/payment-methods", c.PaymentMethodController.Create)
-	c.App.Put("/api/payment-methods/:id", c.PaymentMethodController.Update)
-	c.App.Get("/api/payment-methods/:id", c.PaymentMethodController.Get)
-	c.App.Delete("/api/payment-methods/:id", c.PaymentMethodController.Delete)
+	c.App.Get("/api/methods", c.PaymentMethodController.List)
+	c.App.Post("/api/methods", c.PaymentMethodController.Create)
+	c.App.Put("/api/methods/:id", c.PaymentMethodController.Update)
+	c.App.Get("/api/methods/:id", c.PaymentMethodController.Get)
+	c.App.Delete("/api/methods/:id", c.PaymentMethodController.Delete)
 }

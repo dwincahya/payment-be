@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/dwincahya/payment-be/internal/config"
+	"github.com/dwincahya/payment-be/internal/delivery/http/middleware"
 )
 
 func main() {
@@ -12,6 +13,8 @@ func main() {
 	db := config.NewDatabase(viperConfig, log)
 	validate := config.NewValidator(viperConfig)
 	app := config.NewFiber(viperConfig)
+
+	app.Use(middleware.NewCors())
 
 	appConfig := &config.AppConfig{
 		DB:       db,
