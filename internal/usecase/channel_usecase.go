@@ -2,13 +2,13 @@ package usecase
 
 import (
 	"context"
+	"errors"
 
 	"github.com/dwincahya/payment-be/internal/entity"
 	models "github.com/dwincahya/payment-be/internal/model"
 	"github.com/dwincahya/payment-be/internal/model/converter"
 	"github.com/dwincahya/payment-be/internal/repository"
 	"github.com/go-playground/validator/v10"
-	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -37,24 +37,24 @@ func (c *PaymentChannelUseCase) Create(ctx context.Context, request *models.Crea
 
 	if err := c.Validate.Struct(request); err != nil {
 		c.Log.WithError(err).Error("Validation error for CreatePaymentChannelRequest")
-		return nil, fiber.ErrBadRequest
+		return nil, err
 	}
 
 	paymentMethod := new(entity.PaymentMethod)
 
 	if err := c.PaymentMethodRepository.FindById(tx, paymentMethod, *request.PaymentMethodID); err != nil {
 		c.Log.WithError(err).Error("Parent Payment Method not found for PaymentChannel")
-		return nil, fiber.ErrNotFound
+		return nil, err
 	}
 
 	existingChannel := new(entity.PaymentChannel)
 
 	if err := c.PaymentChannelRepository.FindByCode(tx, existingChannel, request.Code); err == nil {
 		c.Log.Warnf("Payment channel with code %s already exists", request.Code)
-		return nil, fiber.NewError(fiber.StatusConflict, "Payment channel with this code already exists")
+		return nil, errors.New("payment channel with this code already exists")
 	} else if err != gorm.ErrRecordNotFound {
 		c.Log.WithError(err).Error("Failed to check existing payment channel by code")
-		return nil, fiber.ErrInternalServerError
+		return nil, errors.New("failed to check existing payment channel")
 	}
 
 	paymentChannel := &entity.PaymentChannel{
@@ -71,12 +71,12 @@ func (c *PaymentChannelUseCase) Create(ctx context.Context, request *models.Crea
 
 	if err := c.PaymentChannelRepository.Create(tx, paymentChannel); err != nil {
 		c.Log.WithError(err).Error("Failed to create payment channel")
-		return nil, fiber.ErrInternalServerError
+		return nil, err
 	}
 
 	if err := tx.Commit().Error; err != nil {
 		c.Log.WithError(err).Error("Failed to commit transaction for creating payment channel")
-		return nil, fiber.ErrInternalServerError
+		return nil, err
 	}
 
 	return converter.PaymentChanneltoResponse(paymentChannel), nil
@@ -89,20 +89,20 @@ func (c *PaymentChannelUseCase) Update(ctx context.Context, request *models.Upda
 
 	if err := c.Validate.Struct(request); err != nil {
 		c.Log.WithError(err).Error("Validation error for UpdatePaymentChannelRequest")
-		return nil, fiber.ErrBadRequest
+		return nil, err
 	}
 
 	paymentChannel := new(entity.PaymentChannel)
 	if err := c.PaymentChannelRepository.FindById(tx, paymentChannel, request.ID); err != nil {
 		c.Log.WithError(err).Error("Payment channel not found for update")
-		return nil, fiber.ErrNotFound
+		return nil, err
 	}
 
 	if request.PaymentMethodID != nil && *request.PaymentMethodID != *paymentChannel.PaymentMethodID {
 		paymentMethod := new(entity.PaymentMethod)
 		if err := c.PaymentMethodRepository.FindById(tx, paymentMethod, *request.PaymentMethodID); err != nil {
 			c.Log.WithError(err).Error("New Payment Method not found for PaymentChannel update")
-			return nil, fiber.ErrNotFound
+			return nil, err
 		}
 	}
 
@@ -118,12 +118,12 @@ func (c *PaymentChannelUseCase) Update(ctx context.Context, request *models.Upda
 
 	if err := c.PaymentChannelRepository.Update(tx, paymentChannel); err != nil {
 		c.Log.WithError(err).Error("Failed to update payment channel")
-		return nil, fiber.ErrInternalServerError
+		return nil, err
 	}
 
 	if err := tx.Commit().Error; err != nil {
 		c.Log.WithError(err).Error("Failed to commit transaction")
-		return nil, fiber.ErrInternalServerError
+		return nil, err
 	}
 
 	return converter.PaymentChanneltoResponse(paymentChannel), nil
@@ -137,12 +137,12 @@ func (c *PaymentChannelUseCase) Get(ctx context.Context, request *models.GetPaym
 
 	if err := c.PaymentChannelRepository.FindById(tx.Preload("PaymentMethod"), paymentChannel, request.ID); err != nil {
 		c.Log.WithError(err).Error("Payment channel not found")
-		return nil, fiber.ErrNotFound
+		return nil, err
 	}
 
 	if err := tx.Commit().Error; err != nil {
 		c.Log.WithError(err).Error("Failed to commit transaction for getting payment channel")
-		return nil, fiber.ErrInternalServerError
+		return nil, err
 	}
 
 	return converter.PaymentChanneltoResponse(paymentChannel), nil
@@ -155,17 +155,17 @@ func (c *PaymentChannelUseCase) Delete(ctx context.Context, request *models.Dele
 	paymentChannel := new(entity.PaymentChannel)
 	if err := c.PaymentChannelRepository.FindById(tx, paymentChannel, request.ID); err != nil {
 		c.Log.WithError(err).Error("Payment channel not found for deletion")
-		return fiber.ErrNotFound
+		return err
 	}
 
 	if err := c.PaymentChannelRepository.Delete(tx, paymentChannel); err != nil {
 		c.Log.WithError(err).Error("Failed to delete payment channel")
-		return fiber.ErrInternalServerError
+		return err
 	}
 
 	if err := tx.Commit().Error; err != nil {
 		c.Log.WithError(err).Error("Failed to commit transaction for deleting payment channel")
-		return fiber.ErrInternalServerError
+		return err
 	}
 
 	return nil
@@ -188,12 +188,12 @@ func (c *PaymentChannelUseCase) List(ctx context.Context, request *models.ListPa
 	paymentChannels, err := c.PaymentChannelRepository.FindAll(query)
 	if err != nil {
 		c.Log.WithError(err).Error("Failed to find all payment channels")
-		return nil, fiber.ErrInternalServerError
+		return nil, err
 	}
 
 	if err := tx.Commit().Error; err != nil {
 		c.Log.WithError(err).Error("Failed to commit transaction")
-		return nil, fiber.ErrInternalServerError
+		return nil, err
 	}
 
 	return converter.PaymentChanneltoResponseSlice(paymentChannels), nil
