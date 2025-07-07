@@ -148,25 +148,50 @@ func (c *PaymentMethodUseCase) Delete(ctx context.Context, request *models.Delet
 	return nil
 }
 
-func (c *PaymentMethodUseCase) List(ctx context.Context) ([]*models.PaymentMethodResponse, error) {
+func (c *PaymentMethodUseCase) List(ctx context.Context, request *models.ListPaymentMethodRequest) ([]*models.PaymentMethodResponse, *models.PageMetadata, error) {
 	tx := c.DB.WithContext(ctx).Begin()
 	defer tx.Rollback()
 
-	paymentMethod, err := c.PaymentMethodRespository.FindAll(tx)
+	query := tx
+
+	var totalItem int64
+	if err := query.Model(&entity.PaymentMethod{}).Count(&totalItem).Error; err != nil {
+		c.Log.WithError(err).Error("Failed to count payment methods")
+		return nil, nil, err
+	}
+
+	if request.Page > 0 && request.Limit > 0 {
+		offset := (request.Page - 1) * request.Limit
+		query = query.Offset(offset).Limit(request.Limit)
+	}
+
+	paymentMethods, err := c.PaymentMethodRespository.FindAll(query)
 	if err != nil {
-		c.Log.WithError(err).Error("Failed to find all payment methods")
-		return nil, err
+		c.Log.WithError(err).Error("Failed to find payment methods")
+		return nil, nil, err
 	}
 
 	if err := tx.Commit().Error; err != nil {
 		c.Log.WithError(err).Error("Failed to commit transaction")
-		return nil, err
+		return nil, nil, err
 	}
 
-	response := make([]*models.PaymentMethodResponse, len(paymentMethod))
-	for i, paymentMethod := range paymentMethod {
-		response[i] = converter.PaymentMethodtoResponse(&paymentMethod)
+	response := make([]*models.PaymentMethodResponse, len(paymentMethods))
+	for i, pm := range paymentMethods {
+		response[i] = converter.PaymentMethodtoResponse(&pm)
 	}
 
-	return response, nil
+	totalPage := 1
+	if request.Limit > 0 {
+		totalPage = int((totalItem + int64(request.Limit) - 1) / int64(request.Limit))
+	}
+
+	paging := &models.PageMetadata{
+		Page:      request.Page,
+		Limit:     request.Limit,
+		TotalItem: int(totalItem),
+		TotalPage: totalPage,
+	}
+
+	return response, paging, nil
 }

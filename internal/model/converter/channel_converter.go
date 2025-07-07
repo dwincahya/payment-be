@@ -21,15 +21,16 @@ func PaymentChanneltoResponse(PaymentChannel *entity.PaymentChannel) *models.Pay
 		UserAction:      PaymentChannel.UserAction,
 		Mdr:             PaymentChannel.Mdr,
 		FixedFee:        PaymentChannel.FixedFee,
+		PaymentMethod:   PaymentMethodtoResponse(PaymentChannel.PaymentMethod),
 	}
 
 	return response
 }
 
-func PaymentChanneltoResponseSlice(PaymentChannel []entity.PaymentChannel) []*models.PaymentChannelResponse {
-	responses := make([]*models.PaymentChannelResponse, len(PaymentChannel))
-	for i, PaymentChannel := range PaymentChannel {
-		responses[i] = PaymentChanneltoResponse(&PaymentChannel)
+func PaymentChanneltoResponseSlice(pcs []entity.PaymentChannel) []*models.PaymentChannelResponse {
+	responses := make([]*models.PaymentChannelResponse, len(pcs))
+	for i, pc := range pcs {
+		responses[i] = PaymentChanneltoResponse(&pc)
 	}
 	return responses
 }

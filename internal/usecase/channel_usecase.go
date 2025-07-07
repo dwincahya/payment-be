@@ -171,30 +171,52 @@ func (c *PaymentChannelUseCase) Delete(ctx context.Context, request *models.Dele
 	return nil
 }
 
-func (c *PaymentChannelUseCase) List(ctx context.Context, request *models.ListPaymentChannelRequest) ([]*models.PaymentChannelResponse, error) {
+func (c *PaymentChannelUseCase) List(ctx context.Context, request *models.ListPaymentChannelRequest) ([]*models.PaymentChannelResponse, *models.PageMetadata, error) {
 	tx := c.DB.WithContext(ctx).Begin()
 	defer tx.Rollback()
 
-	query := tx.Preload("PaymentMethod")
+	query := tx.Model(&entity.PaymentChannel{})
+
 	if request.PaymentMethodID != nil {
 		query = query.Where("payment_method_id = ?", *request.PaymentMethodID)
 	}
 
-	if request.Page > 0 && request.Limit > 0 {
-		offset := (request.Page - 1) * request.Limit
-		query = query.Offset(offset).Limit(request.Limit)
+	var totalRows int64
+	if err := query.Count(&totalRows).Error; err != nil {
+		c.Log.WithError(err).Error("Failed to count payment channels")
+		return nil, nil, err
 	}
 
-	paymentChannels, err := c.PaymentChannelRepository.FindAll(query)
+	paymentQuery := query.Preload("PaymentMethod")
+	if request.Page > 0 && request.Limit > 0 {
+		offset := (request.Page - 1) * request.Limit
+		paymentQuery = paymentQuery.Offset(offset).Limit(request.Limit)
+	}
+
+	paymentChannels, err := c.PaymentChannelRepository.FindAll(paymentQuery)
 	if err != nil {
-		c.Log.WithError(err).Error("Failed to find all payment channels")
-		return nil, err
+		c.Log.WithError(err).Error("Failed to find payment channels")
+		return nil, nil, err
 	}
 
 	if err := tx.Commit().Error; err != nil {
 		c.Log.WithError(err).Error("Failed to commit transaction")
-		return nil, err
+		return nil, nil, err
 	}
 
-	return converter.PaymentChanneltoResponseSlice(paymentChannels), nil
+	totalPages := 0
+	if request.Limit > 0 {
+		totalPages = int((totalRows + int64(request.Limit) - 1) / int64(request.Limit))
+	}
+
+	paging := &models.PageMetadata{
+		Page:      request.Page,
+		Limit:     request.Limit,
+		TotalItem: int(totalRows),
+		TotalPage: totalPages,
+	}
+
+	responseData := converter.PaymentChanneltoResponseSlice(paymentChannels)
+
+	return responseData, paging, nil
 }

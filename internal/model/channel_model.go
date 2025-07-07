@@ -39,7 +39,7 @@ type ListPaymentChannelRequest struct {
 	ID              *uint `json:"id,omitempty" query:"id"`
 	PaymentMethodID *uint `json:"payment_method_id,omitempty" query:"payment_method_id"`
 	Page            int   `json:"page" query:"page"`
-	Limit           int   `json:"size" query:"size"`
+	Limit           int   `json:"limit" query:"limit"`
 }
 
 type UpdatePaymentChannelRequest struct {

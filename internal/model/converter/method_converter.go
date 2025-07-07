@@ -6,6 +6,10 @@ import (
 )
 
 func PaymentMethodtoResponse(PaymentMethod *entity.PaymentMethod) *models.PaymentMethodResponse {
+
+	if PaymentMethod == nil {
+		return nil
+	}
 	return &models.PaymentMethodResponse{
 		ID:         PaymentMethod.ID,
 		Name:       PaymentMethod.Name,

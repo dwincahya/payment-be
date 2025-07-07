@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strconv"
 
+	"github.com/dwincahya/payment-be/internal/helper"
 	models "github.com/dwincahya/payment-be/internal/model"
 	"github.com/dwincahya/payment-be/internal/usecase"
 	"github.com/go-playground/validator/v10"
@@ -12,14 +13,16 @@ import (
 )
 
 type PaymentChannelController struct {
-	UseCase *usecase.PaymentChannelUseCase
-	Log     *logrus.Logger
+	UseCase  *usecase.PaymentChannelUseCase
+	Log      *logrus.Logger
+	Validate *validator.Validate
 }
 
 func NewPaymentChannelController(useCase *usecase.PaymentChannelUseCase, log *logrus.Logger) *PaymentChannelController {
 	return &PaymentChannelController{
-		UseCase: useCase,
-		Log:     log,
+		UseCase:  useCase,
+		Log:      log,
+		Validate: validator.New(),
 	}
 }
 
@@ -27,7 +30,12 @@ func (c *PaymentChannelController) Create(ctx *fiber.Ctx) error {
 	request := new(models.CreatePaymentChannelRequest)
 	if err := ctx.BodyParser(request); err != nil {
 		c.Log.WithError(err).Error("Failed to parse body")
-		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
+		return helper.ErrorResponse(ctx, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	if err := c.Validate.Struct(request); err != nil {
+		c.Log.WithError(err).Error("Validation failed")
+		return helper.ErrorResponse(ctx, fiber.StatusBadRequest, err.Error())
 	}
 
 	response, err := c.UseCase.Create(ctx.Context(), request)
@@ -35,12 +43,13 @@ func (c *PaymentChannelController) Create(ctx *fiber.Ctx) error {
 		return c.handleError(ctx, err)
 	}
 
-	return ctx.Status(fiber.StatusCreated).JSON(models.WebResponse[*models.PaymentChannelResponse]{Data: response})
+	return helper.SuccessResponse(ctx, response, "Payment channel created successfully")
+
 }
 
 func (c *PaymentChannelController) List(ctx *fiber.Ctx) error {
 	page, _ := strconv.Atoi(ctx.Query("page", "1"))
-	size, _ := strconv.Atoi(ctx.Query("size", "10"))
+	limit, _ := strconv.Atoi(ctx.Query("limit", "10"))
 
 	var paymentMethodID *uint
 	if param := ctx.Query("payment_method_id"); param != "" {
@@ -54,15 +63,15 @@ func (c *PaymentChannelController) List(ctx *fiber.Ctx) error {
 	request := &models.ListPaymentChannelRequest{
 		PaymentMethodID: paymentMethodID,
 		Page:            page,
-		Limit:           size,
+		Limit:           limit,
 	}
 
-	response, err := c.UseCase.List(ctx.Context(), request)
+	data, paging, err := c.UseCase.List(ctx.Context(), request)
 	if err != nil {
 		return c.handleError(ctx, err)
 	}
 
-	return ctx.JSON(models.WebResponse[[]*models.PaymentChannelResponse]{Data: response})
+	return helper.SuccessResponseWithPaging(ctx, data, "Payment channel list", paging)
 }
 
 func (c *PaymentChannelController) Get(ctx *fiber.Ctx) error {
@@ -82,7 +91,7 @@ func (c *PaymentChannelController) Get(ctx *fiber.Ctx) error {
 		return c.handleError(ctx, err)
 	}
 
-	return ctx.JSON(models.WebResponse[*models.PaymentChannelResponse]{Data: response})
+	return helper.SuccessResponse(ctx, response, "Payment channel GET Success")
 }
 
 func (c *PaymentChannelController) Update(ctx *fiber.Ctx) error {
@@ -91,7 +100,12 @@ func (c *PaymentChannelController) Update(ctx *fiber.Ctx) error {
 	request := new(models.UpdatePaymentChannelRequest)
 	if err := ctx.BodyParser(request); err != nil {
 		c.Log.WithError(err).Error("Failed to parse body")
-		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
+		return helper.ErrorResponse(ctx, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	if err := c.Validate.Struct(request); err != nil {
+		c.Log.WithError(err).Error("Validation failed")
+		return helper.ErrorResponse(ctx, fiber.StatusBadRequest, err.Error())
 	}
 
 	uintID, err := strconv.ParseUint(id, 10, 32)
@@ -106,7 +120,7 @@ func (c *PaymentChannelController) Update(ctx *fiber.Ctx) error {
 		return c.handleError(ctx, err)
 	}
 
-	return ctx.JSON(models.WebResponse[*models.PaymentChannelResponse]{Data: response})
+	return helper.SuccessResponse(ctx, response, "Payment channel update success")
 }
 
 func (c *PaymentChannelController) Delete(ctx *fiber.Ctx) error {
@@ -129,7 +143,7 @@ func (c *PaymentChannelController) Delete(ctx *fiber.Ctx) error {
 		return c.handleError(ctx, err)
 	}
 
-	return ctx.JSON(models.WebResponse[bool]{Data: true})
+	return helper.SuccessResponse(ctx, true, "Payment channel deleted")
 }
 
 func (c *PaymentChannelController) handleError(ctx *fiber.Ctx, err error) error {

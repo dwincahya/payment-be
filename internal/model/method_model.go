@@ -25,8 +25,15 @@ type GetPaymentMethodRequest struct {
 	ID uint `json:"id" validate:"required"`
 }
 
+type ListPaymentMethodRequest struct {
+	ID              *uint `json:"id,omitempty" query:"id"`
+	PaymentMethodID *uint `json:"payment_method_id,omitempty" query:"payment_method_id"`
+	Page            int   `json:"page" query:"page"`
+	Limit           int   `json:"limit" query:"limit"`
+}
+
 type UpdatePaymentMethodRequest struct {
-	ID         uint   `json:"id" validate:"required"`
+	ID         uint   `json:"id"`
 	Code       string `json:"code" validate:"required,max=25"`
 	Name       string `json:"name" validate:"required,max=50"`
 	Desc       string `json:"desc" validate:"required"`

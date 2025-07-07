@@ -36,7 +36,7 @@ func (r *PaymentChannelRepository) FindByCode(tx *gorm.DB, paymentChannel *entit
 
 func (r *PaymentChannelRepository) FindAll(tx *gorm.DB) ([]entity.PaymentChannel, error) {
 	var paymentChannels []entity.PaymentChannel
-	if err := tx.Find(&paymentChannels).Error; err != nil {
+	if err := tx.Preload("PaymentMethod").Find(&paymentChannels).Error; err != nil {
 		r.Log.Error("Failed to find all payment Channels: ", err)
 		return nil, err
 	}

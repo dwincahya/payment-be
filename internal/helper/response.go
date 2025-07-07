@@ -13,10 +13,21 @@ func ErrorResponse(ctx *fiber.Ctx, statusCode int, message string) error {
 	})
 }
 
-func SuccessResponse[T any](ctx *fiber.Ctx, data T) error {
-	return ctx.JSON(models.WebResponse[T]{
+func SuccessResponse(ctx *fiber.Ctx, data interface{}, message string) error {
+	response := models.WebResponse[interface{}]{
 		Code:    200,
-		Message: "Success",
 		Data:    data,
-	})
+		Message: message,
+	}
+	return ctx.Status(fiber.StatusOK).JSON(response)
+}
+
+func SuccessResponseWithPaging(ctx *fiber.Ctx, data interface{}, message string, paging *models.PageMetadata) error {
+	response := models.WebResponse[interface{}]{
+		Code:    200,
+		Data:    data,
+		Paging:  paging,
+		Message: message,
+	}
+	return ctx.Status(fiber.StatusOK).JSON(response)
 }
