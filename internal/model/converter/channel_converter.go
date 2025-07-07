@@ -21,6 +21,8 @@ func PaymentChanneltoResponse(PaymentChannel *entity.PaymentChannel) *models.Pay
 		UserAction:      PaymentChannel.UserAction,
 		Mdr:             PaymentChannel.Mdr,
 		FixedFee:        PaymentChannel.FixedFee,
+		CreatedAt:       PaymentChannel.CreatedAt,
+		UpdatedAt:       PaymentChannel.UpdatedAt,
 		PaymentMethod:   PaymentMethodtoResponse(PaymentChannel.PaymentMethod),
 	}
 
