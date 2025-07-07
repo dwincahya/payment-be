@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/dwincahya/payment-be/internal/entity"
@@ -9,7 +10,6 @@ import (
 	"github.com/dwincahya/payment-be/internal/model/converter"
 	"github.com/dwincahya/payment-be/internal/repository"
 	"github.com/go-playground/validator/v10"
-	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -36,7 +36,16 @@ func (c *PaymentMethodUseCase) Create(ctx context.Context, request *models.Creat
 
 	if err := c.Validate.Struct(request); err != nil {
 		c.Log.WithError(err).Error("Validation error")
-		return nil, fiber.ErrBadRequest
+		return nil, err
+	}
+
+	existingMethod := new(entity.PaymentMethod)
+	if err := c.PaymentMethodRespository.FindByCode(tx, existingMethod, request.Code); err == nil {
+		c.Log.Warnf("Payment method with code %s already exists", request.Code)
+		return nil, errors.New("payment method with this code already exists")
+	} else if err != gorm.ErrRecordNotFound {
+		c.Log.WithError(err).Error("Failed to check existing payment method")
+		return nil, err
 	}
 
 	paymentMethod := &entity.PaymentMethod{
@@ -51,12 +60,12 @@ func (c *PaymentMethodUseCase) Create(ctx context.Context, request *models.Creat
 
 	if err := c.PaymentMethodRespository.Create(tx, paymentMethod); err != nil {
 		c.Log.WithError(err).Error("Failed to create payment method")
-		return nil, fiber.ErrInternalServerError
+		return nil, err
 	}
 
 	if err := tx.Commit().Error; err != nil {
 		c.Log.WithError(err).Error("Failed to commit transaction")
-		return nil, fiber.ErrInternalServerError
+		return nil, err
 	}
 
 	return converter.PaymentMethodtoResponse(paymentMethod), nil
@@ -68,13 +77,13 @@ func (c *PaymentMethodUseCase) Update(ctx context.Context, request *models.Updat
 
 	if err := c.Validate.Struct(request); err != nil {
 		c.Log.WithError(err).Error("Validation error")
-		return nil, fiber.ErrBadRequest
+		return nil, err
 	}
 
 	paymentMethod := new(entity.PaymentMethod)
 	if err := c.PaymentMethodRespository.FindById(tx, paymentMethod, request.ID); err != nil {
 		c.Log.WithError(err).Error("Payment method not found")
-		return nil, fiber.ErrNotFound
+		return nil, err
 	}
 
 	paymentMethod.Name = request.Name
@@ -86,12 +95,12 @@ func (c *PaymentMethodUseCase) Update(ctx context.Context, request *models.Updat
 
 	if err := c.PaymentMethodRespository.Update(tx, paymentMethod); err != nil {
 		c.Log.WithError(err).Error("Failed to update payment method")
-		return nil, fiber.ErrInternalServerError
+		return nil, err
 	}
 
 	if err := tx.Commit().Error; err != nil {
 		c.Log.WithError(err).Error("Failed to commit transaction")
-		return nil, fiber.ErrInternalServerError
+		return nil, err
 	}
 
 	return converter.PaymentMethodtoResponse(paymentMethod), nil
@@ -104,12 +113,12 @@ func (c *PaymentMethodUseCase) Get(ctx context.Context, request *models.GetPayme
 	paymentMethod := new(entity.PaymentMethod)
 	if err := c.PaymentMethodRespository.FindById(tx, paymentMethod, request.ID); err != nil {
 		c.Log.WithError(err).Error("Payment method not found")
-		return nil, fiber.ErrNotFound
+		return nil, err
 	}
 
 	if err := tx.Commit().Error; err != nil {
 		c.Log.WithError(err).Error("Failed to commit transaction")
-		return nil, fiber.ErrInternalServerError
+		return nil, err
 	}
 
 	return converter.PaymentMethodtoResponse(paymentMethod), nil
@@ -124,17 +133,17 @@ func (c *PaymentMethodUseCase) Delete(ctx context.Context, request *models.Delet
 
 	if err := c.PaymentMethodRespository.FindById(tx, paymentMethod, request.ID); err != nil {
 		c.Log.WithError(err).Error("Payment method not found")
-		return fiber.ErrNotFound
+		return err
 	}
 
 	if err := c.PaymentMethodRespository.Delete(tx, paymentMethod); err != nil {
 		c.Log.WithError(err).Error("Failed to delete payment method")
-		return fiber.ErrInternalServerError
+		return err
 	}
 
 	if err := tx.Commit().Error; err != nil {
 		c.Log.WithError(err).Error("Failed to commit transaction")
-		return fiber.ErrInternalServerError
+		return err
 	}
 	return nil
 }
@@ -146,12 +155,12 @@ func (c *PaymentMethodUseCase) List(ctx context.Context) ([]*models.PaymentMetho
 	paymentMethod, err := c.PaymentMethodRespository.FindAll(tx)
 	if err != nil {
 		c.Log.WithError(err).Error("Failed to find all payment methods")
-		return nil, fiber.ErrInternalServerError
+		return nil, err
 	}
 
 	if err := tx.Commit().Error; err != nil {
 		c.Log.WithError(err).Error("Failed to commit transaction")
-		return nil, fiber.ErrInternalServerError
+		return nil, err
 	}
 
 	response := make([]*models.PaymentMethodResponse, len(paymentMethod))
