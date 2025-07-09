@@ -25,6 +25,16 @@ func NewPaymentMethodController(useCase *usecase.PaymentMethodUseCase, log *logr
 	}
 }
 
+// Create godoc
+// @Summary Create payment method
+// @Description Create new payment method
+// @Tags PaymentMethod
+// @Accept json
+// @Produce json
+// @Param body body models.CreatePaymentMethodRequest true "Create Payment Method request body"
+// @Success 200 {object} models.PaymentMethodDetailResponse
+// @Failure 400 {object} models.PaymentMethodDetailResponse
+// @Router /api/methods [post]
 func (c *PaymentMethodController) Create(ctx *fiber.Ctx) error {
 	request := new(models.CreatePaymentMethodRequest)
 	if err := ctx.BodyParser(request); err != nil {
@@ -47,6 +57,17 @@ func (c *PaymentMethodController) Create(ctx *fiber.Ctx) error {
 
 }
 
+// Update godoc
+// @Summary Update payment method
+// @Description Update existing payment method by ID
+// @Tags PaymentMethod
+// @Accept json
+// @Produce json
+// @Param id path int true "Payment Method ID"
+// @Param body body models.UpdatePaymentMethodRequest true "Update Payment Method request body"
+// @Success 200 {object} models.PaymentMethodDetailResponse
+// @Failure 400 {object} models.PaymentMethodDetailResponse
+// @Router /api/methods/{id} [put]
 func (c *PaymentMethodController) Update(ctx *fiber.Ctx) error {
 	request := new(models.UpdatePaymentMethodRequest)
 
@@ -76,6 +97,16 @@ func (c *PaymentMethodController) Update(ctx *fiber.Ctx) error {
 	return helper.SuccessResponse(ctx, response, "Payment method updated succesfully")
 }
 
+// Get godoc
+// @Summary Get payment method
+// @Description Get detail of payment method by ID
+// @Tags PaymentMethod
+// @Accept json
+// @Produce json
+// @Param id path int true "Payment Method ID"
+// @Success 200 {object} models.PaymentMethodDetailResponse
+// @Failure 400 {object} models.PaymentMethodDetailResponse
+// @Router /api/methods/{id} [get]
 func (c *PaymentMethodController) Get(ctx *fiber.Ctx) error {
 	id, err := ctx.ParamsInt("id")
 	if err != nil {
@@ -96,6 +127,16 @@ func (c *PaymentMethodController) Get(ctx *fiber.Ctx) error {
 	return helper.SuccessResponse(ctx, response, "Payment method get")
 }
 
+// Delete godoc
+// @Summary Delete payment method
+// @Description Delete payment method by ID
+// @Tags PaymentMethod
+// @Accept json
+// @Produce json
+// @Param id path int true "Payment Method ID"
+// @Success 200 {object} models.PaymentMethodDetailResponse
+// @Failure 400 {object} models.PaymentMethodDetailResponse
+// @Router /api/methods/{id} [delete]
 func (c *PaymentMethodController) Delete(ctx *fiber.Ctx) error {
 	id, err := ctx.ParamsInt("id")
 	if err != nil {
@@ -115,6 +156,17 @@ func (c *PaymentMethodController) Delete(ctx *fiber.Ctx) error {
 	return helper.SuccessResponse(ctx, true, "Payment method deleted")
 }
 
+// List godoc
+// @Summary List payment methods
+// @Description List payment methods with pagination
+// @Tags PaymentMethod
+// @Accept json
+// @Produce json
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Items per page" default(10)
+// @Success 200 {object} models.PaymentMethodListResponse
+// @Failure 400 {object} models.PaymentMethodListResponse
+// @Router /api/methods [get]
 func (c *PaymentMethodController) List(ctx *fiber.Ctx) error {
 	page, _ := strconv.Atoi(ctx.Query("page", "1"))
 	limit, _ := strconv.Atoi(ctx.Query("limit", "10"))

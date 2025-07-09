@@ -1,9 +1,248 @@
 basePath: /
+definitions:
+  models.CreatePaymentMethodRequest:
+    properties:
+      code:
+        maxLength: 25
+        type: string
+      desc:
+        type: string
+      name:
+        maxLength: 50
+        type: string
+      order_num:
+        type: integer
+      user_action:
+        maxLength: 25
+        type: string
+    required:
+    - code
+    - desc
+    - name
+    - order_num
+    - user_action
+    type: object
+  models.PageMetadata:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      total_item:
+        type: integer
+      total_page:
+        type: integer
+    type: object
+  models.PaymentMethodDetailResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/models.PaymentMethodResponse'
+      errors:
+        type: string
+      message:
+        type: string
+      paging:
+        $ref: '#/definitions/models.PageMetadata'
+    type: object
+  models.PaymentMethodListResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/models.PaymentMethodResponse'
+        type: array
+      errors:
+        type: string
+      message:
+        type: string
+      paging:
+        $ref: '#/definitions/models.PageMetadata'
+    type: object
+  models.PaymentMethodResponse:
+    properties:
+      code:
+        type: string
+      created_at:
+        type: string
+      desc:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      order_num:
+        type: integer
+      updated_at:
+        type: string
+      user_action:
+        type: string
+    type: object
+  models.UpdatePaymentMethodRequest:
+    properties:
+      code:
+        maxLength: 25
+        type: string
+      desc:
+        type: string
+      id:
+        type: integer
+      name:
+        maxLength: 50
+        type: string
+      order_num:
+        type: integer
+      user_action:
+        maxLength: 25
+        type: string
+    required:
+    - code
+    - desc
+    - name
+    - order_num
+    - user_action
+    type: object
 host: 103.210.35.189:8120
 info:
   contact: {}
   description: This is a sample swagger for Fiber
   title: SVD Payment API
   version: "1.0"
-paths: {}
+paths:
+  /api/methods:
+    get:
+      consumes:
+      - application/json
+      description: List payment methods with pagination
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PaymentMethodListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.PaymentMethodListResponse'
+      summary: List payment methods
+      tags:
+      - PaymentMethod
+    post:
+      consumes:
+      - application/json
+      description: Create new payment method
+      parameters:
+      - description: Create Payment Method request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreatePaymentMethodRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PaymentMethodDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.PaymentMethodDetailResponse'
+      summary: Create payment method
+      tags:
+      - PaymentMethod
+  /api/methods/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete payment method by ID
+      parameters:
+      - description: Payment Method ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PaymentMethodDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.PaymentMethodDetailResponse'
+      summary: Delete payment method
+      tags:
+      - PaymentMethod
+    get:
+      consumes:
+      - application/json
+      description: Get detail of payment method by ID
+      parameters:
+      - description: Payment Method ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PaymentMethodDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.PaymentMethodDetailResponse'
+      summary: Get payment method
+      tags:
+      - PaymentMethod
+    put:
+      consumes:
+      - application/json
+      description: Update existing payment method by ID
+      parameters:
+      - description: Payment Method ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update Payment Method request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdatePaymentMethodRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PaymentMethodDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.PaymentMethodDetailResponse'
+      summary: Update payment method
+      tags:
+      - PaymentMethod
 swagger: "2.0"

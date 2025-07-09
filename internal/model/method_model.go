@@ -13,6 +13,22 @@ type PaymentMethodResponse struct {
 	UpdatedAt  time.Time `json:"updated_at"`
 }
 
+type PaymentMethodDetailResponse struct {
+	Code    int                   `json:"code"`
+	Data    PaymentMethodResponse `json:"data"`
+	Paging  *PageMetadata         `json:"paging,omitempty"`
+	Message string                `json:"message"`
+	Errors  string                `json:"errors,omitempty"`
+}
+
+type PaymentMethodListResponse struct {
+	Code    int                     `json:"code"`
+	Data    []PaymentMethodResponse `json:"data"`
+	Paging  *PageMetadata           `json:"paging,omitempty"`
+	Message string                  `json:"message"`
+	Errors  string                  `json:"errors,omitempty"`
+}
+
 type CreatePaymentMethodRequest struct {
 	Code       string `json:"code" validate:"required,max=25"`
 	Name       string `json:"name" validate:"required,max=50"`
