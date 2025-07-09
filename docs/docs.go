@@ -17,7 +17,7 @@ const docTemplate = `{
     "paths": {
         "/api/channels": {
             "get": {
-                "description": "List payment channels with pagination",
+                "description": "List payment channels with pagination and filters",
                 "consumes": [
                     "application/json"
                 ],
@@ -41,6 +41,24 @@ const docTemplate = `{
                         "default": 10,
                         "description": "Items per page",
                         "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter by Payment Method ID",
+                        "name": "payment_method_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by channel code (partial match)",
+                        "name": "code",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by channel name (partial match)",
+                        "name": "name",
                         "in": "query"
                     }
                 ],
@@ -243,6 +261,24 @@ const docTemplate = `{
                         "default": 10,
                         "description": "Items per page",
                         "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter by Payment Method ID",
+                        "name": "payment_method_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by method code (partial match)",
+                        "name": "code",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by method name (partial match)",
+                        "name": "name",
                         "in": "query"
                     }
                 ],

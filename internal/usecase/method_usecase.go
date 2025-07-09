@@ -165,6 +165,14 @@ func (c *PaymentMethodUseCase) List(ctx context.Context, request *models.ListPay
 		query = query.Offset(offset).Limit(request.Limit)
 	}
 
+	if request.Code != "" {
+		query = query.Where("LOWER(code) LIKE LOWER(?)", "%"+request.Code+"%")
+	}
+
+	if request.Name != "" {
+		query = query.Where("LOWER(name) LIKE LOWER(?)", "%"+request.Name+"%")
+	}
+
 	paymentMethods, err := c.PaymentMethodRespository.FindAll(query)
 	if err != nil {
 		c.Log.WithError(err).Error("Failed to find payment methods")

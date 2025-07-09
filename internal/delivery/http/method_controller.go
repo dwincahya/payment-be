@@ -1,7 +1,7 @@
 package http
 
 import (
-	"strconv"
+	"errors"
 
 	"github.com/dwincahya/payment-be/internal/helper"
 	models "github.com/dwincahya/payment-be/internal/model"
@@ -164,23 +164,57 @@ func (c *PaymentMethodController) Delete(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param page query int false "Page number" default(1)
 // @Param limit query int false "Items per page" default(10)
+// @Param payment_method_id query int false "Filter by Payment Method ID"
+// @Param code query string false "Filter by method code (partial match)"
+// @Param name query string false "Filter by method name (partial match)"
 // @Success 200 {object} models.PaymentMethodListResponse
 // @Failure 400 {object} models.PaymentMethodListResponse
 // @Router /api/methods [get]
 func (c *PaymentMethodController) List(ctx *fiber.Ctx) error {
-	page, _ := strconv.Atoi(ctx.Query("page", "1"))
-	limit, _ := strconv.Atoi(ctx.Query("limit", "10"))
+	request := &models.ListPaymentMethodRequest{}
 
-	request := &models.ListPaymentMethodRequest{
-		Page:  page,
-		Limit: limit,
+	if err := ctx.QueryParser(request); err != nil {
+		c.Log.WithError(err).Error("Failed to parse query parameters")
+		return helper.ErrorResponse(ctx, fiber.StatusBadRequest, "Invalid query parameters")
 	}
 
-	data, paging, err := c.UseCase.List(ctx.UserContext(), request)
+	if request.Page <= 0 {
+		request.Page = 1
+	}
+	if request.Limit <= 0 {
+		request.Limit = 10
+	}
+
+	data, paging, err := c.UseCase.List(ctx.Context(), request)
 	if err != nil {
-		c.Log.WithError(err).Error("Failed to list payment methods")
-		return err
+		return c.handleError(ctx, err)
 	}
 
 	return helper.SuccessResponseWithPaging(ctx, data, "Payment method list", paging)
+}
+
+func (c *PaymentMethodController) handleError(ctx *fiber.Ctx, err error) error {
+	c.Log.WithError(err).Error("Request failed")
+
+	var ve validator.ValidationErrors
+	if errors.As(err, &ve) {
+		var validationDetails []string
+		for _, fieldErr := range ve {
+			validationDetails = append(validationDetails, fieldErr.Field()+": "+fieldErr.ActualTag())
+		}
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Validation failed",
+			"errors":  validationDetails,
+		})
+	}
+
+	if err.Error() == "payment method with this code already exists" {
+		return ctx.Status(fiber.StatusConflict).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
+
+	return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+		"message": err.Error(),
+	})
 }

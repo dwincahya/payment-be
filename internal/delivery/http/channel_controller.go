@@ -59,32 +59,31 @@ func (c *PaymentChannelController) Create(ctx *fiber.Ctx) error {
 
 // List godoc
 // @Summary List payment channels
-// @Description List payment channels with pagination
+// @Description List payment channels with pagination and filters
 // @Tags PaymentChannel
 // @Accept json
 // @Produce json
 // @Param page query int false "Page number" default(1)
 // @Param limit query int false "Items per page" default(10)
+// @Param payment_method_id query int false "Filter by Payment Method ID"
+// @Param code query string false "Filter by channel code (partial match)"
+// @Param name query string false "Filter by channel name (partial match)"
 // @Success 200 {object} models.PaymentChannelListResponse
 // @Failure 400 {object} models.PaymentChannelListResponse
 // @Router /api/channels [get]
 func (c *PaymentChannelController) List(ctx *fiber.Ctx) error {
-	page, _ := strconv.Atoi(ctx.Query("page", "1"))
-	limit, _ := strconv.Atoi(ctx.Query("limit", "10"))
+	request := &models.ListPaymentChannelRequest{}
 
-	var paymentMethodID *uint
-	if param := ctx.Query("payment_method_id"); param != "" {
-		idConv, err := strconv.ParseUint(param, 10, 32)
-		if err == nil {
-			tmp := uint(idConv)
-			paymentMethodID = &tmp
-		}
+	if err := ctx.QueryParser(request); err != nil {
+		c.Log.WithError(err).Error("Failed to parse query parameters")
+		return helper.ErrorResponse(ctx, fiber.StatusBadRequest, "Invalid query parameters")
 	}
 
-	request := &models.ListPaymentChannelRequest{
-		PaymentMethodID: paymentMethodID,
-		Page:            page,
-		Limit:           limit,
+	if request.Page <= 0 {
+		request.Page = 1
+	}
+	if request.Limit <= 0 {
+		request.Limit = 10
 	}
 
 	data, paging, err := c.UseCase.List(ctx.Context(), request)

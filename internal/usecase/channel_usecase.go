@@ -181,6 +181,14 @@ func (c *PaymentChannelUseCase) List(ctx context.Context, request *models.ListPa
 		query = query.Where("payment_method_id = ?", *request.PaymentMethodID)
 	}
 
+	if request.Code != "" {
+		query = query.Where("LOWER(code) LIKE LOWER(?)", "%"+request.Code+"%")
+	}
+
+	if request.Name != "" {
+		query = query.Where("LOWER(name) LIKE LOWER(?)", "%"+request.Name+"%")
+	}
+
 	var totalRows int64
 	if err := query.Count(&totalRows).Error; err != nil {
 		c.Log.WithError(err).Error("Failed to count payment channels")

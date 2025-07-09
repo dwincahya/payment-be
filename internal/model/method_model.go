@@ -42,10 +42,11 @@ type GetPaymentMethodRequest struct {
 }
 
 type ListPaymentMethodRequest struct {
-	ID              *uint `json:"id,omitempty" query:"id"`
-	PaymentMethodID *uint `json:"payment_method_id,omitempty" query:"payment_method_id"`
-	Page            int   `json:"page" query:"page"`
-	Limit           int   `json:"limit" query:"limit"`
+	ID    *uint  `json:"id,omitempty" query:"id"`
+	Code  string `json:"code,omitempty"`
+	Name  string `json:"name,omitempty"`
+	Page  int    `json:"page" query:"page" validate:"omitempty,numeric"`
+	Limit int    `json:"limit" query:"limit" validate:"omitempty,numeric"`
 }
 
 type UpdatePaymentMethodRequest struct {

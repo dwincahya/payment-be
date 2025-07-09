@@ -251,7 +251,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: List payment channels with pagination
+      description: List payment channels with pagination and filters
       parameters:
       - default: 1
         description: Page number
@@ -263,6 +263,18 @@ paths:
         in: query
         name: limit
         type: integer
+      - description: Filter by Payment Method ID
+        in: query
+        name: payment_method_id
+        type: integer
+      - description: Filter by channel code (partial match)
+        in: query
+        name: code
+        type: string
+      - description: Filter by channel name (partial match)
+        in: query
+        name: name
+        type: string
       produces:
       - application/json
       responses:
@@ -397,6 +409,18 @@ paths:
         in: query
         name: limit
         type: integer
+      - description: Filter by Payment Method ID
+        in: query
+        name: payment_method_id
+        type: integer
+      - description: Filter by method code (partial match)
+        in: query
+        name: code
+        type: string
+      - description: Filter by method name (partial match)
+        in: query
+        name: name
+        type: string
       produces:
       - application/json
       responses:
