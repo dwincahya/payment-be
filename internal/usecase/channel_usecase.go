@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"strconv"
 
 	"github.com/dwincahya/payment-be/internal/entity"
 	models "github.com/dwincahya/payment-be/internal/model"
@@ -65,7 +66,7 @@ func (c *PaymentChannelUseCase) Create(ctx context.Context, request *models.Crea
 		OrderNum:        request.OrderNum,
 		LibName:         request.LibName,
 		UserAction:      request.UserAction,
-		Mdr:             request.Mdr,
+		Mdr:             strconv.Itoa(request.Mdr),
 		FixedFee:        request.FixedFee,
 	}
 
@@ -113,7 +114,7 @@ func (c *PaymentChannelUseCase) Update(ctx context.Context, request *models.Upda
 	paymentChannel.OrderNum = request.OrderNum
 	paymentChannel.LibName = request.LibName
 	paymentChannel.UserAction = request.UserAction
-	paymentChannel.Mdr = request.Mdr
+	paymentChannel.Mdr = strconv.Itoa(request.Mdr)
 	paymentChannel.FixedFee = request.FixedFee
 
 	if err := c.PaymentChannelRepository.Update(tx, paymentChannel); err != nil {

@@ -42,7 +42,7 @@ type CreatePaymentChannelRequest struct {
 	OrderNum        int     `json:"order_num" validate:"required"`
 	LibName         string  `json:"lib_name" validate:"required,max=255"`
 	UserAction      string  `json:"user_action" validate:"required,max=25"`
-	Mdr             string  `json:"mdr" validate:"required,max=255"`
+	Mdr             int     `json:"mdr" validate:"required,max=255"`
 	FixedFee        float64 `json:"fixed_fee" validate:"required"`
 }
 
@@ -70,7 +70,7 @@ type UpdatePaymentChannelRequest struct {
 	OrderNum        int     `json:"order_num" validate:"required"`
 	LibName         string  `json:"lib_name" validate:"required,max=255"`
 	UserAction      string  `json:"user_action" validate:"required,max=25"`
-	Mdr             string  `json:"mdr" validate:"required,max=255"`
+	Mdr             int     `json:"mdr" validate:"required,max=255"`
 	FixedFee        float64 `json:"fixed_fee" validate:"required"`
 }
 
