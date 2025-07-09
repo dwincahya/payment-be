@@ -493,8 +493,8 @@
                     "maxLength": 255
                 },
                 "mdr": {
-                    "type": "string",
-                    "maxLength": 255
+                    "type": "integer",
+                    "maximum": 255
                 },
                 "name": {
                     "type": "string",
@@ -755,8 +755,8 @@
                     "maxLength": 255
                 },
                 "mdr": {
-                    "type": "string",
-                    "maxLength": 255
+                    "type": "integer",
+                    "maximum": 255
                 },
                 "name": {
                     "type": "string",

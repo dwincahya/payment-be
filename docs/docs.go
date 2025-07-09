@@ -499,8 +499,8 @@ const docTemplate = `{
                     "maxLength": 255
                 },
                 "mdr": {
-                    "type": "string",
-                    "maxLength": 255
+                    "type": "integer",
+                    "maximum": 255
                 },
                 "name": {
                     "type": "string",
@@ -761,8 +761,8 @@ const docTemplate = `{
                     "maxLength": 255
                 },
                 "mdr": {
-                    "type": "string",
-                    "maxLength": 255
+                    "type": "integer",
+                    "maximum": 255
                 },
                 "name": {
                     "type": "string",

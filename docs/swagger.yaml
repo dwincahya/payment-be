@@ -14,8 +14,8 @@ definitions:
         maxLength: 255
         type: string
       mdr:
-        maxLength: 255
-        type: string
+        maximum: 255
+        type: integer
       name:
         maxLength: 50
         type: string
@@ -192,8 +192,8 @@ definitions:
         maxLength: 255
         type: string
       mdr:
-        maxLength: 255
-        type: string
+        maximum: 255
+        type: integer
       name:
         maxLength: 50
         type: string
