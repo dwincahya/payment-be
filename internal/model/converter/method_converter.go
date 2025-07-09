@@ -21,3 +21,11 @@ func PaymentMethodtoResponse(PaymentMethod *entity.PaymentMethod) *models.Paymen
 		UpdatedAt:  PaymentMethod.UpdatedAt,
 	}
 }
+
+func PaymentMethodtoResponseSlice(entities []entity.PaymentMethod) []*models.PaymentMethodResponse {
+	responses := make([]*models.PaymentMethodResponse, len(entities))
+	for i, pm := range entities {
+		responses[i] = PaymentMethodtoResponse(&pm)
+	}
+	return responses
+}

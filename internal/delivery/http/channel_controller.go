@@ -68,6 +68,7 @@ func (c *PaymentChannelController) Create(ctx *fiber.Ctx) error {
 // @Param payment_method_id query int false "Filter by Payment Method ID"
 // @Param code query string false "Filter by channel code (partial match)"
 // @Param name query string false "Filter by channel name (partial match)"
+// @Param All query bool false "Set to true to retrieve all payment channels, ignoring page and limit"
 // @Success 200 {object} models.PaymentChannelListResponse
 // @Failure 400 {object} models.PaymentChannelListResponse
 // @Router /api/channels [get]
@@ -79,11 +80,16 @@ func (c *PaymentChannelController) List(ctx *fiber.Ctx) error {
 		return helper.ErrorResponse(ctx, fiber.StatusBadRequest, "Invalid query parameters")
 	}
 
-	if request.Page <= 0 {
-		request.Page = 1
-	}
-	if request.Limit <= 0 {
-		request.Limit = 10
+	if !request.All {
+		if request.Page <= 0 {
+			request.Page = 1
+		}
+		if request.Limit <= 0 {
+			request.Limit = 10
+		}
+	} else {
+		request.Page = 0
+		request.Limit = 0
 	}
 
 	data, paging, err := c.UseCase.List(ctx.Context(), request)

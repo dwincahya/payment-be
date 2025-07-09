@@ -167,6 +167,7 @@ func (c *PaymentMethodController) Delete(ctx *fiber.Ctx) error {
 // @Param payment_method_id query int false "Filter by Payment Method ID"
 // @Param code query string false "Filter by method code (partial match)"
 // @Param name query string false "Filter by method name (partial match)"
+// @Param All query bool false "Set to true to retrieve all payment methods, ignoring page and limit"
 // @Success 200 {object} models.PaymentMethodListResponse
 // @Failure 400 {object} models.PaymentMethodListResponse
 // @Router /api/methods [get]

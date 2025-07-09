@@ -152,18 +152,7 @@ func (c *PaymentMethodUseCase) List(ctx context.Context, request *models.ListPay
 	tx := c.DB.WithContext(ctx).Begin()
 	defer tx.Rollback()
 
-	query := tx
-
-	var totalItem int64
-	if err := query.Model(&entity.PaymentMethod{}).Count(&totalItem).Error; err != nil {
-		c.Log.WithError(err).Error("Failed to count payment methods")
-		return nil, nil, err
-	}
-
-	if request.Page > 0 && request.Limit > 0 {
-		offset := (request.Page - 1) * request.Limit
-		query = query.Offset(offset).Limit(request.Limit)
-	}
+	query := tx.Model(&entity.PaymentMethod{})
 
 	if request.Code != "" {
 		query = query.Where("LOWER(code) LIKE LOWER(?)", "%"+request.Code+"%")
@@ -173,8 +162,22 @@ func (c *PaymentMethodUseCase) List(ctx context.Context, request *models.ListPay
 		query = query.Where("LOWER(name) LIKE LOWER(?)", "%"+request.Name+"%")
 	}
 
-	paymentMethods, err := c.PaymentMethodRespository.FindAll(query)
-	if err != nil {
+	var totalRows int64
+	if err := query.Count(&totalRows).Error; err != nil {
+		c.Log.WithError(err).Error("Failed to count payment methods")
+		return nil, nil, err
+	}
+
+	paymentQuery := query
+	if !request.All {
+		if request.Page > 0 && request.Limit > 0 {
+			offset := (request.Page - 1) * request.Limit
+			paymentQuery = paymentQuery.Offset(offset).Limit(request.Limit)
+		}
+	}
+
+	var paymentMethods []entity.PaymentMethod
+	if err := paymentQuery.Find(&paymentMethods).Error; err != nil {
 		c.Log.WithError(err).Error("Failed to find payment methods")
 		return nil, nil, err
 	}
@@ -184,22 +187,21 @@ func (c *PaymentMethodUseCase) List(ctx context.Context, request *models.ListPay
 		return nil, nil, err
 	}
 
-	response := make([]*models.PaymentMethodResponse, len(paymentMethods))
-	for i, pm := range paymentMethods {
-		response[i] = converter.PaymentMethodtoResponse(&pm)
-	}
-
-	totalPage := 1
-	if request.Limit > 0 {
-		totalPage = int((totalItem + int64(request.Limit) - 1) / int64(request.Limit))
+	totalPages := 0
+	if request.Limit > 0 && !request.All {
+		totalPages = int((totalRows + int64(request.Limit) - 1) / int64(request.Limit))
+	} else if request.All {
+		totalPages = 1
 	}
 
 	paging := &models.PageMetadata{
 		Page:      request.Page,
 		Limit:     request.Limit,
-		TotalItem: int(totalItem),
-		TotalPage: totalPage,
+		TotalItem: int(totalRows),
+		TotalPage: totalPages,
 	}
 
-	return response, paging, nil
+	responseData := converter.PaymentMethodtoResponseSlice(paymentMethods)
+
+	return responseData, paging, nil
 }

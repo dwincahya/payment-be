@@ -196,13 +196,16 @@ func (c *PaymentChannelUseCase) List(ctx context.Context, request *models.ListPa
 	}
 
 	paymentQuery := query.Preload("PaymentMethod")
-	if request.Page > 0 && request.Limit > 0 {
-		offset := (request.Page - 1) * request.Limit
-		paymentQuery = paymentQuery.Offset(offset).Limit(request.Limit)
+
+	if !request.All {
+		if request.Page > 0 && request.Limit > 0 {
+			offset := (request.Page - 1) * request.Limit
+			paymentQuery = paymentQuery.Offset(offset).Limit(request.Limit)
+		}
 	}
 
-	paymentChannels, err := c.PaymentChannelRepository.FindAll(paymentQuery)
-	if err != nil {
+	var paymentChannels []entity.PaymentChannel
+	if err := paymentQuery.Find(&paymentChannels).Error; err != nil {
 		c.Log.WithError(err).Error("Failed to find payment channels")
 		return nil, nil, err
 	}
@@ -213,8 +216,10 @@ func (c *PaymentChannelUseCase) List(ctx context.Context, request *models.ListPa
 	}
 
 	totalPages := 0
-	if request.Limit > 0 {
+	if request.Limit > 0 && !request.All {
 		totalPages = int((totalRows + int64(request.Limit) - 1) / int64(request.Limit))
+	} else if request.All {
+		totalPages = 1
 	}
 
 	paging := &models.PageMetadata{
