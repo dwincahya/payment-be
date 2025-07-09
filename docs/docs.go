@@ -60,6 +60,12 @@ const docTemplate = `{
                         "description": "Filter by channel name (partial match)",
                         "name": "name",
                         "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Set to true to retrieve all payment channels, ignoring page and limit",
+                        "name": "All",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -279,6 +285,12 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Filter by method name (partial match)",
                         "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Set to true to retrieve all payment methods, ignoring page and limit",
+                        "name": "All",
                         "in": "query"
                     }
                 ],

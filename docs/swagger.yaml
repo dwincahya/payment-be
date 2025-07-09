@@ -275,6 +275,11 @@ paths:
         in: query
         name: name
         type: string
+      - description: Set to true to retrieve all payment channels, ignoring page and
+          limit
+        in: query
+        name: All
+        type: boolean
       produces:
       - application/json
       responses:
@@ -421,6 +426,11 @@ paths:
         in: query
         name: name
         type: string
+      - description: Set to true to retrieve all payment methods, ignoring page and
+          limit
+        in: query
+        name: All
+        type: boolean
       produces:
       - application/json
       responses:
