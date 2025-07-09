@@ -1,5 +1,42 @@
 basePath: /
 definitions:
+  models.CreatePaymentChannelRequest:
+    properties:
+      code:
+        maxLength: 255
+        type: string
+      fixed_fee:
+        type: number
+      icon_url:
+        maxLength: 255
+        type: string
+      lib_name:
+        maxLength: 255
+        type: string
+      mdr:
+        maxLength: 255
+        type: string
+      name:
+        maxLength: 50
+        type: string
+      order_num:
+        type: integer
+      payment_method_id:
+        type: integer
+      user_action:
+        maxLength: 25
+        type: string
+    required:
+    - code
+    - fixed_fee
+    - icon_url
+    - lib_name
+    - mdr
+    - name
+    - order_num
+    - payment_method_id
+    - user_action
+    type: object
   models.CreatePaymentMethodRequest:
     properties:
       code:
@@ -32,6 +69,65 @@ definitions:
         type: integer
       total_page:
         type: integer
+    type: object
+  models.PaymentChannelDetailResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/models.PaymentChannelResponse'
+        type: array
+      errors:
+        type: string
+      message:
+        type: string
+      paging:
+        $ref: '#/definitions/models.PageMetadata'
+    type: object
+  models.PaymentChannelListResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/models.PaymentChannelResponse'
+        type: array
+      errors:
+        type: string
+      message:
+        type: string
+      paging:
+        $ref: '#/definitions/models.PageMetadata'
+    type: object
+  models.PaymentChannelResponse:
+    properties:
+      code:
+        type: string
+      created_at:
+        type: string
+      fixed_fee:
+        type: number
+      icon_url:
+        type: string
+      id:
+        type: integer
+      lib_name:
+        type: string
+      mdr:
+        type: string
+      name:
+        type: string
+      order_num:
+        type: integer
+      payment_method:
+        $ref: '#/definitions/models.PaymentMethodResponse'
+      payment_method_id:
+        type: integer
+      updated_at:
+        type: string
+      user_action:
+        type: string
     type: object
   models.PaymentMethodDetailResponse:
     properties:
@@ -80,6 +176,46 @@ definitions:
       user_action:
         type: string
     type: object
+  models.UpdatePaymentChannelRequest:
+    properties:
+      code:
+        maxLength: 255
+        type: string
+      fixed_fee:
+        type: number
+      icon_url:
+        maxLength: 255
+        type: string
+      id:
+        type: integer
+      lib_name:
+        maxLength: 255
+        type: string
+      mdr:
+        maxLength: 255
+        type: string
+      name:
+        maxLength: 50
+        type: string
+      order_num:
+        type: integer
+      payment_method_id:
+        type: integer
+      user_action:
+        maxLength: 25
+        type: string
+    required:
+    - code
+    - fixed_fee
+    - icon_url
+    - id
+    - lib_name
+    - mdr
+    - name
+    - order_num
+    - payment_method_id
+    - user_action
+    type: object
   models.UpdatePaymentMethodRequest:
     properties:
       code:
@@ -111,6 +247,140 @@ info:
   title: SVD Payment API
   version: "1.0"
 paths:
+  /api/channels:
+    get:
+      consumes:
+      - application/json
+      description: List payment channels with pagination
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PaymentChannelListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.PaymentChannelListResponse'
+      summary: List payment channels
+      tags:
+      - PaymentChannel
+    post:
+      consumes:
+      - application/json
+      description: Create new payment channel
+      parameters:
+      - description: Create Payment Channel request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreatePaymentChannelRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PaymentChannelDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.PaymentChannelDetailResponse'
+      summary: Create payment channel
+      tags:
+      - PaymentChannel
+  /api/channels/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete payment channel by ID
+      parameters:
+      - description: Payment Channel ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PaymentChannelDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.PaymentChannelDetailResponse'
+      summary: Delete payment channel
+      tags:
+      - PaymentChannel
+    get:
+      consumes:
+      - application/json
+      description: Get detail of payment channel by ID
+      parameters:
+      - description: Payment Channel ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PaymentChannelDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.PaymentChannelDetailResponse'
+      summary: Get payment channel
+      tags:
+      - PaymentChannel
+    put:
+      consumes:
+      - application/json
+      description: Update existing payment chanel by ID
+      parameters:
+      - description: Payment Channel ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update Payment Method request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdatePaymentChannelRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PaymentChannelDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.PaymentChannelDetailResponse'
+      summary: Update payment channel
+      tags:
+      - PaymentChannel
   /api/methods:
     get:
       consumes:

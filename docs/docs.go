@@ -15,6 +15,208 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/channels": {
+            "get": {
+                "description": "List payment channels with pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PaymentChannel"
+                ],
+                "summary": "List payment channels",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.PaymentChannelListResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.PaymentChannelListResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create new payment channel",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PaymentChannel"
+                ],
+                "summary": "Create payment channel",
+                "parameters": [
+                    {
+                        "description": "Create Payment Channel request body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreatePaymentChannelRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.PaymentChannelDetailResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.PaymentChannelDetailResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/channels/{id}": {
+            "get": {
+                "description": "Get detail of payment channel by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PaymentChannel"
+                ],
+                "summary": "Get payment channel",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Payment Channel ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.PaymentChannelDetailResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.PaymentChannelDetailResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update existing payment chanel by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PaymentChannel"
+                ],
+                "summary": "Update payment channel",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Payment Channel ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Payment Method request body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdatePaymentChannelRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.PaymentChannelDetailResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.PaymentChannelDetailResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete payment channel by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PaymentChannel"
+                ],
+                "summary": "Delete payment channel",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Payment Channel ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.PaymentChannelDetailResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.PaymentChannelDetailResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/methods": {
             "get": {
                 "description": "List payment methods with pagination",
@@ -219,6 +421,55 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.CreatePaymentChannelRequest": {
+            "type": "object",
+            "required": [
+                "code",
+                "fixed_fee",
+                "icon_url",
+                "lib_name",
+                "mdr",
+                "name",
+                "order_num",
+                "payment_method_id",
+                "user_action"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "fixed_fee": {
+                    "type": "number"
+                },
+                "icon_url": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "lib_name": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "mdr": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "order_num": {
+                    "type": "integer"
+                },
+                "payment_method_id": {
+                    "type": "integer"
+                },
+                "user_action": {
+                    "type": "string",
+                    "maxLength": 25
+                }
+            }
+        },
         "models.CreatePaymentMethodRequest": {
             "type": "object",
             "required": [
@@ -263,6 +514,96 @@ const docTemplate = `{
                 },
                 "total_page": {
                     "type": "integer"
+                }
+            }
+        },
+        "models.PaymentChannelDetailResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.PaymentChannelResponse"
+                    }
+                },
+                "errors": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "paging": {
+                    "$ref": "#/definitions/models.PageMetadata"
+                }
+            }
+        },
+        "models.PaymentChannelListResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.PaymentChannelResponse"
+                    }
+                },
+                "errors": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "paging": {
+                    "$ref": "#/definitions/models.PageMetadata"
+                }
+            }
+        },
+        "models.PaymentChannelResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "fixed_fee": {
+                    "type": "number"
+                },
+                "icon_url": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "lib_name": {
+                    "type": "string"
+                },
+                "mdr": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "order_num": {
+                    "type": "integer"
+                },
+                "payment_method": {
+                    "$ref": "#/definitions/models.PaymentMethodResponse"
+                },
+                "payment_method_id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_action": {
+                    "type": "string"
                 }
             }
         },
@@ -335,6 +676,59 @@ const docTemplate = `{
                 },
                 "user_action": {
                     "type": "string"
+                }
+            }
+        },
+        "models.UpdatePaymentChannelRequest": {
+            "type": "object",
+            "required": [
+                "code",
+                "fixed_fee",
+                "icon_url",
+                "id",
+                "lib_name",
+                "mdr",
+                "name",
+                "order_num",
+                "payment_method_id",
+                "user_action"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "fixed_fee": {
+                    "type": "number"
+                },
+                "icon_url": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "lib_name": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "mdr": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "order_num": {
+                    "type": "integer"
+                },
+                "payment_method_id": {
+                    "type": "integer"
+                },
+                "user_action": {
+                    "type": "string",
+                    "maxLength": 25
                 }
             }
         },

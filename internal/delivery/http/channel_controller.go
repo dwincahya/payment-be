@@ -26,6 +26,16 @@ func NewPaymentChannelController(useCase *usecase.PaymentChannelUseCase, log *lo
 	}
 }
 
+// Create godoc
+// @Summary Create payment channel
+// @Description Create new payment channel
+// @Tags PaymentChannel
+// @Accept json
+// @Produce json
+// @Param body body models.CreatePaymentChannelRequest true "Create Payment Channel request body"
+// @Success 200 {object} models.PaymentChannelDetailResponse
+// @Failure 400 {object} models.PaymentChannelDetailResponse
+// @Router /api/channels [post]
 func (c *PaymentChannelController) Create(ctx *fiber.Ctx) error {
 	request := new(models.CreatePaymentChannelRequest)
 	if err := ctx.BodyParser(request); err != nil {
@@ -47,6 +57,17 @@ func (c *PaymentChannelController) Create(ctx *fiber.Ctx) error {
 
 }
 
+// List godoc
+// @Summary List payment channels
+// @Description List payment channels with pagination
+// @Tags PaymentChannel
+// @Accept json
+// @Produce json
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Items per page" default(10)
+// @Success 200 {object} models.PaymentChannelListResponse
+// @Failure 400 {object} models.PaymentChannelListResponse
+// @Router /api/channels [get]
 func (c *PaymentChannelController) List(ctx *fiber.Ctx) error {
 	page, _ := strconv.Atoi(ctx.Query("page", "1"))
 	limit, _ := strconv.Atoi(ctx.Query("limit", "10"))
@@ -74,6 +95,16 @@ func (c *PaymentChannelController) List(ctx *fiber.Ctx) error {
 	return helper.SuccessResponseWithPaging(ctx, data, "Payment channel list", paging)
 }
 
+// Get godoc
+// @Summary Get payment channel
+// @Description Get detail of payment channel by ID
+// @Tags PaymentChannel
+// @Accept json
+// @Produce json
+// @Param id path int true "Payment Channel ID"
+// @Success 200 {object} models.PaymentChannelDetailResponse
+// @Failure 400 {object} models.PaymentChannelDetailResponse
+// @Router /api/channels/{id} [get]
 func (c *PaymentChannelController) Get(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 	uintID, err := strconv.ParseUint(id, 10, 32)
@@ -94,6 +125,17 @@ func (c *PaymentChannelController) Get(ctx *fiber.Ctx) error {
 	return helper.SuccessResponse(ctx, response, "Payment channel GET Success")
 }
 
+// Update godoc
+// @Summary Update payment channel
+// @Description Update existing payment chanel by ID
+// @Tags PaymentChannel
+// @Accept json
+// @Produce json
+// @Param id path int true "Payment Channel ID"
+// @Param body body models.UpdatePaymentChannelRequest true "Update Payment Method request body"
+// @Success 200 {object} models.PaymentChannelDetailResponse
+// @Failure 400 {object} models.PaymentChannelDetailResponse
+// @Router /api/channels/{id} [put]
 func (c *PaymentChannelController) Update(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 
@@ -123,6 +165,16 @@ func (c *PaymentChannelController) Update(ctx *fiber.Ctx) error {
 	return helper.SuccessResponse(ctx, response, "Payment channel update success")
 }
 
+// Delete godoc
+// @Summary Delete payment channel
+// @Description Delete payment channel by ID
+// @Tags PaymentChannel
+// @Accept json
+// @Produce json
+// @Param id path int true "Payment Channel ID"
+// @Success 200 {object} models.PaymentChannelDetailResponse
+// @Failure 400 {object} models.PaymentChannelDetailResponse
+// @Router /api/channels/{id} [delete]
 func (c *PaymentChannelController) Delete(ctx *fiber.Ctx) error {
 	idParam := ctx.Params("id")
 	if idParam == "" {

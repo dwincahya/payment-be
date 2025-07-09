@@ -18,6 +18,22 @@ type PaymentChannelResponse struct {
 	PaymentMethod   *PaymentMethodResponse `json:"payment_method,omitempty"`
 }
 
+type PaymentChannelDetailResponse struct {
+	Code    int                      `json:"code"`
+	Data    []PaymentChannelResponse `json:"data"`
+	Paging  *PageMetadata            `json:"paging,omitempty"`
+	Message string                   `json:"message"`
+	Errors  string                   `json:"errors,omitempty"`
+}
+
+type PaymentChannelListResponse struct {
+	Code    int                      `json:"code"`
+	Data    []PaymentChannelResponse `json:"data"`
+	Paging  *PageMetadata            `json:"paging,omitempty"`
+	Message string                   `json:"message"`
+	Errors  string                   `json:"errors,omitempty"`
+}
+
 type CreatePaymentChannelRequest struct {
 	PaymentMethodID *uint   `json:"payment_method_id" validate:"required"`
 	Code            string  `json:"code" validate:"required,max=255"`
